@@ -1,0 +1,74 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[a4paper,left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{mathpazo}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{mathrsfs}
+
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+
+\setlength{\parindent}{0mm}
+\def\arraystretch{1.5}
+
+\begin{document}
+\begin{center}
+\begin{tabular}{c|l}
+\multicolumn{2}{c}{\texttt{lambda.txt}} \\
+\hline
+Column & Description\hspace{9cm} \\
+\hline
+1 & Value of $\lambda$ \\
+2 & Value of the functional $(1-\lambda)A[g]$ \\
+3 & Value of the functional $\lambda B[g]$ \\
+4 & Value of the functional $W[g]$ \\
+\end{tabular}
+\end{center}
+\vskip 3mm
+\begin{center}
+\begin{tabular}{c|l}
+\multicolumn{2}{c}{\texttt{systematic.txt}} \\
+\hline
+Column & Description\hspace{9cm} \\
+\hline
+1 & Central energy $E_\star$ \\
+2 & Energy $E$ \\
+3 & Value of exact smearing function $\Delta_\sigma(E_\star,E)$ \\
+4 & Value of reconstructed smearing function $\bar\Delta_\sigma(E_\star,E)$ \\
+\end{tabular}
+\end{center}
+\vskip 3mm
+\begin{center}
+\begin{tabular}{c|l}
+\multicolumn{2}{c}{\texttt{correlator.txt}} \\
+\hline
+Column & Description\hspace{9cm} \\
+\hline
+1 & Temporal coordinate $t$ \\
+2 & Mean value of the correlator $C(t)$ \\
+3 & Standard deviation of the correlator \\
+\end{tabular}
+\end{center}
+\vskip 3mm
+\begin{center}
+\begin{tabular}{c|l}
+\multicolumn{2}{c}{\texttt{results.txt}} \\
+\hline
+Column & Description\hspace{9cm} \\
+\hline
+1 & Energy $E_\star$ \\
+2\footnote{This column does not exists for the \texttt{realcorr} program, hence all the remaining columns are shifted by one.} & Exact result for the smeared spectral density $\hat\rho_L(\sigma,E_\star)$ \\
+3 & Reconstruction of the smeared spectral density $\hat\rho_L(\sigma,E_\star)$ \\
+4 & $1\sigma$ estimate of the statistical error $\Delta^{stat}$ \\
+5 & $1\sigma$ estimate of the systematic error $\Delta^{syst}$ \\
+6 & The two errors combined in quadrature \\
+7 & The value of the functional $W(\lambda,E_\star)$
+\end{tabular}
+\end{center}
+
+\pagestyle{empty}
+
+\end{document}
