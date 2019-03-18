@@ -1,7 +1,7 @@
 # Spectral densities
 This code can be used for calculating smeared spectral densities from lattice QCD correlators. This is done by solving an inverse Laplace problem, as described in the paper:
 
-> Martin Hansen, Alessandro Lupo, Nazario Tantalo, On the extraction of spectral densities from lattice correlators, [arXiv:1903.xxxxx](https://arxiv.org/abs/1903.xxxxxx).
+> Martin Hansen, Alessandro Lupo, Nazario Tantalo, On the extraction of spectral densities from lattice correlators, [arXiv:1903.06476](https://arxiv.org/abs/1903.06476).
 
 To properly understand what the code does, it is advised to carefully read this paper. Moreover, if you decide to use this code, or the implemented algorithm, please cite the paper.
 

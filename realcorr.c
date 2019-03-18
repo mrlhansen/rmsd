@@ -130,18 +130,29 @@ void read_corr()
 		error("Unable to open file for reading");
 	}
 
-	buf = malloc(1024*sizeof(char));
+	buf = malloc(2048*sizeof(char));
 	offset = 0;
 
-	while(fgets(buf, 1024, fp))
+	while(fgets(buf, 2048, fp))
 	{
 		token = strtok(buf, " ");
+
+		if(strlen(buf) == 0)
+		{
+			break;
+		}
+
 		while(token)
 		{
 			mpfr_set_d(mcorr[offset], atof(token), ROUNDING);
 			token = strtok(NULL, " ");
 			offset++;
 		}
+	}
+
+	if(offset != tmx*nms)
+	{
+		error("Error reading correlator data, number of elements is incorrect");
 	}
 
 	fclose(fp);
