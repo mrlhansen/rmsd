@@ -475,9 +475,9 @@ void get_spectral_density()
 			stat = sqrt(stat);
 		}
 
-		fprintf(rfp, "%1.8e %1.8e %1.8e %1.8e %1.8e %1.8e %1.8e %1.8e\n",
+		fprintf(rfp, "%1.8e %1.8e %1.8e %1.8e %1.8e %1.8e %1.8e\n",
 					ei+n*de, mpfr_get_d(expected[n], ROUNDING), rho,
-					stat, sys, sqrt(stat*stat+sys*sys), mag, mbg);
+					stat, sys, sqrt(stat*stat+sys*sys), mag+mbg);
 
 		full_sample();
 

@@ -239,8 +239,8 @@ void get_spectral_density()
 			stat = sqrt(stat);
 		}
 
-		fprintf(rfp, "%1.8e %1.8e %1.8e %1.8e %1.8e %1.8e %1.8e\n",
-					ei+n*de, rho, stat, sys, sqrt(stat*stat+sys*sys), mag, mbg);
+		fprintf(rfp, "%1.8e %1.8e %1.8e %1.8e %1.8e %1.8e\n",
+					ei+n*de, rho, stat, sys, sqrt(stat*stat+sys*sys), mag+mbg);
 
 		full_sample();
 		rm_method_cosh(e0, estar, cov);
