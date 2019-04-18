@@ -4,7 +4,7 @@
 
 # Variables
 CC = gcc
-LDFLAGS = -lm -lmpfr
+LDFLAGS = -lm -lmpfr -larb -lflint
 CCFLAGS = -Wall -Wextra -O2 -I.
 
 # Do not change the following

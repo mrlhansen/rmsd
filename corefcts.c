@@ -2,18 +2,18 @@
 #include <stdio.h>
 #include <mpfr.h>
 #include "corefcts.h"
+#include "kernels.h"
 #include "utils.h"
 
 #define CORR_EXP  0x01
 #define CORR_COSH 0x02
 
 static int type;
+static int kernel;
 static int inorm = 1;
 
-static mpfr_t pi;
-static mpfr_t sqrt2;
-static mpfr_t lambda, clambda;
-static mpfr_t alpha, sigma;
+static mpfr_t lambda;
+static mpfr_t clambda;
 
 static int tmax = 0;
 static int mmax = 0;
@@ -123,102 +123,61 @@ static void lubksb(int n, mpfr_t *a, mpfr_t *x, mpfr_t *b, int *mutate)
 	mpfr_clear(tmp);
 }
 
-static void int_delta(mpfr_t res, mpfr_t theta, mpfr_t e0, mpfr_t estar)
+void delta(mpfr_t res, mpfr_t estar, mpfr_t omega)
 {
-	mpfr_t arg, norm, tmp, rep;
-	mpfr_inits(arg, norm, tmp, rep, NULL);
-
-	mpfr_mul(tmp, sigma, sigma, ROUNDING);
-	mpfr_mul(rep, theta, tmp, ROUNDING);
-
-	mpfr_add(tmp, rep, estar, ROUNDING);
-	mpfr_add(tmp, tmp, estar, ROUNDING);
-	mpfr_mul(tmp, tmp, theta, ROUNDING);
-	mpfr_mul_d(tmp, tmp, 0.5, ROUNDING);
-	mpfr_exp(norm, tmp, ROUNDING);
-	mpfr_mul_d(norm, norm, 0.5, ROUNDING);
-
-	mpfr_sub(arg, rep, e0, ROUNDING);
-	mpfr_add(arg, arg, estar, ROUNDING);
-	mpfr_mul(tmp, sqrt2, sigma, ROUNDING);
-	mpfr_div(arg, arg, tmp, ROUNDING);
-	mpfr_erf(tmp, arg, ROUNDING);
-	mpfr_add_d(res, tmp, 1.0, ROUNDING);
-	mpfr_mul(res, res, norm, ROUNDING);
-
-	mpfr_mul(norm, sqrt2, sigma, ROUNDING);
-	mpfr_div(norm, estar, norm, ROUNDING);
-	mpfr_erf(norm, norm, ROUNDING);
-	mpfr_add_d(norm, norm, 1.0, ROUNDING);
-	mpfr_mul_d(norm, norm, 0.5, ROUNDING);
-	mpfr_div(res, res, norm, ROUNDING);
-
-	mpfr_clears(arg, norm, tmp, rep, NULL);
+	switch(kernel)
+	{
+		case 0:
+			delta0(res, estar, omega);
+			break;
+		case 1:
+			delta1(res, estar, omega);
+			break;
+		case 2:
+			delta2(res, estar, omega);
+			break;
+		case 3:
+			delta3(res, estar, omega);
+			break;
+	}
 }
 
-static void int_delta_sq(mpfr_t res, mpfr_t theta, mpfr_t e0, mpfr_t estar)
+void int_delta_sq(mpfr_t res, mpfr_t estar, mpfr_t e0)
 {
-	mpfr_t arg, norm, tmp, rep;
-	mpfr_inits(arg, norm, tmp, rep, NULL);
-
-	mpfr_mul(tmp, sigma, sigma, ROUNDING);
-	mpfr_mul(rep, theta, tmp, ROUNDING);
-
-	mpfr_mul_d(tmp, estar, 4.0, ROUNDING);
-	mpfr_add(tmp, tmp, rep, ROUNDING);
-	mpfr_mul(tmp, tmp, theta, ROUNDING);
-	mpfr_mul_d(tmp, tmp, 0.25, ROUNDING);
-	mpfr_exp(norm, tmp, ROUNDING);
-	mpfr_sqrt(tmp, pi, ROUNDING);
-	mpfr_mul(tmp, tmp, sigma, ROUNDING);
-	mpfr_mul_d(tmp, tmp, 4.0, ROUNDING);
-	mpfr_div(norm, norm, tmp, ROUNDING);
-
-	mpfr_sub(arg, estar, e0, ROUNDING);
-	mpfr_mul_d(arg, arg, 2.0, ROUNDING);
-	mpfr_add(arg, arg, rep, ROUNDING);
-	mpfr_mul_d(tmp, sigma, 2.0, ROUNDING);
-	mpfr_div(arg, arg, tmp, ROUNDING);
-	mpfr_erf(tmp, arg, ROUNDING);
-	mpfr_add_d(res, tmp, 1.0, ROUNDING);
-	mpfr_mul(res, res, norm, ROUNDING);
-
-	mpfr_mul(norm, sqrt2, sigma, ROUNDING);
-	mpfr_div(norm, estar, norm, ROUNDING);
-	mpfr_erf(norm, norm, ROUNDING);
-	mpfr_add_d(norm, norm, 1.0, ROUNDING);
-	mpfr_mul_d(norm, norm, 0.5, ROUNDING);
-	mpfr_sqr(norm, norm, ROUNDING);
-	mpfr_div(res, res, norm, ROUNDING);
-
-	mpfr_clears(arg, norm, tmp, rep, NULL);
+	switch(kernel)
+	{
+		case 0:
+			int_delta0_sq(res, estar, e0);
+			break;
+		case 1:
+			int_delta1_sq(res, estar, e0);
+			break;
+		case 2:
+			int_delta2_sq(res, estar, e0);
+			break;
+		case 3:
+			int_delta3_sq(res, estar, e0);
+			break;
+	}
 }
 
-void delta(mpfr_t res, mpfr_t estar, mpfr_t e)
+void int_delta(mpfr_t res, mpfr_t theta, mpfr_t estar, mpfr_t e0)
 {
-	mpfr_t arg, norm;
-	mpfr_inits(arg, norm, NULL);
-
-	mpfr_mul_d(norm, pi, 2.0, ROUNDING);
-	mpfr_sqrt(norm, norm, ROUNDING);
-	mpfr_mul(norm, norm, sigma, ROUNDING);
-
-	mpfr_sub(arg, e, estar, ROUNDING);
-	mpfr_div(arg, arg, sigma, ROUNDING);
-	mpfr_mul(arg, arg, arg, ROUNDING);
-	mpfr_mul_d(arg, arg, -0.5, ROUNDING);
-
-	mpfr_exp(res, arg, ROUNDING);
-	mpfr_div(res, res, norm, ROUNDING);
-
-	mpfr_mul(norm, sqrt2, sigma, ROUNDING);
-	mpfr_div(norm, estar, norm, ROUNDING);
-	mpfr_erf(norm, norm, ROUNDING);
-	mpfr_add_d(norm, norm, 1.0, ROUNDING);
-	mpfr_mul_d(norm, norm, 0.5, ROUNDING);
-	mpfr_div(res, res, norm, ROUNDING);
-
-	mpfr_clears(arg, norm, NULL);
+	switch(kernel)
+	{
+		case 0:
+			int_delta0(res, theta, estar, e0);
+			break;
+		case 1:
+			int_delta1(res, theta, estar, e0);
+			break;
+		case 2:
+			int_delta2(res, theta, estar, e0);
+			break;
+		case 3:
+			int_delta3(res, theta, estar, e0);
+			break;
+	}
 }
 
 void bg_method(mpfr_t estar, mpfr_t *cov)
@@ -301,8 +260,8 @@ void rm_method(mpfr_t e0, mpfr_t estar, mpfr_t *cov)
 
 	for(int i = 0; i < n; i++)
 	{
-		mpfr_sub_d(tmp, alpha, (double)(i+1), ROUNDING);
-		int_delta(f[i], tmp, e0, estar);
+		mpfr_set_d(tmp, (double)(i+1), ROUNDING);
+		int_delta(f[i], tmp, estar, e0);
 		mpfr_mul(f[i], f[i], clambda, ROUNDING);
 
 		if(inorm)
@@ -313,7 +272,7 @@ void rm_method(mpfr_t e0, mpfr_t estar, mpfr_t *cov)
 
 		for(int j = i; j < n; j++)
 		{
-			mpfr_d_sub(tmp, (double)(i+j+2), alpha, ROUNDING);
+			mpfr_set_d(tmp, (double)(i+j+2), ROUNDING);
 			mpfr_mul(x0, e0, tmp, ROUNDING);
 			mpfr_neg(x0, x0, ROUNDING);
 			mpfr_exp(x0, x0, ROUNDING);
@@ -386,10 +345,10 @@ void rm_method_cosh(mpfr_t e0, mpfr_t estar, mpfr_t *cov)
 
 	for(int i = 0; i < n; i++)
 	{
-		mpfr_sub_d(tmp, alpha, (double)(i+1), ROUNDING);
-		int_delta(x0, tmp, e0, estar);
-		mpfr_sub_d(tmp, alpha, (double)(tmax-i-1), ROUNDING);
-		int_delta(x1, tmp, e0, estar);
+		mpfr_set_d(tmp, (double)(i+1), ROUNDING);
+		int_delta(x0, tmp, estar, e0);
+		mpfr_set_d(tmp, (double)(tmax-i-1), ROUNDING);
+		int_delta(x1, tmp, estar, e0);
 		mpfr_add(f[i], x0, x1, ROUNDING);
 		mpfr_mul(f[i], f[i], clambda, ROUNDING);
 
@@ -404,28 +363,28 @@ void rm_method_cosh(mpfr_t e0, mpfr_t estar, mpfr_t *cov)
 
 		for(int j = i; j < n; j++)
 		{
-			mpfr_d_sub(tmp, (double)(i+j+2), alpha, ROUNDING);
+			mpfr_set_d(tmp, (double)(i+j+2), ROUNDING);
 			mpfr_mul(x0, e0, tmp, ROUNDING);
 			mpfr_neg(x0, x0, ROUNDING);
 			mpfr_exp(x0, x0, ROUNDING);
 			mpfr_div(x0, x0, tmp, ROUNDING);
 			mpfr_set(x1, x0, ROUNDING);
 
-			mpfr_d_sub(tmp, (double)(tmax+i-j), alpha, ROUNDING);
+			mpfr_set_d(tmp, (double)(tmax+i-j), ROUNDING);
 			mpfr_mul(x0, e0, tmp, ROUNDING);
 			mpfr_neg(x0, x0, ROUNDING);
 			mpfr_exp(x0, x0, ROUNDING);
 			mpfr_div(x0, x0, tmp, ROUNDING);
 			mpfr_add(x1, x1, x0, ROUNDING);
 
-			mpfr_d_sub(tmp, (double)(tmax-i+j), alpha, ROUNDING);
+			mpfr_set_d(tmp, (double)(tmax-i+j), ROUNDING);
 			mpfr_mul(x0, e0, tmp, ROUNDING);
 			mpfr_neg(x0, x0, ROUNDING);
 			mpfr_exp(x0, x0, ROUNDING);
 			mpfr_div(x0, x0, tmp, ROUNDING);
 			mpfr_add(x1, x1, x0, ROUNDING);
 
-			mpfr_d_sub(tmp, (double)(2*tmax-i-j-2), alpha, ROUNDING);
+			mpfr_set_d(tmp, (double)(2*tmax-i-j-2), ROUNDING);
 			mpfr_mul(x0, e0, tmp, ROUNDING);
 			mpfr_neg(x0, x0, ROUNDING);
 			mpfr_exp(x0, x0, ROUNDING);
@@ -522,7 +481,7 @@ void transform(mpfr_t e0, mpfr_t estar, mpfr_t *corr, mpfr_t *cov, double *rho, 
 		mpfr_add(bsum, bsum, term, ROUNDING);
 	}
 
-	int_delta_sq(term, alpha, e0, estar);
+	int_delta_sq(term, estar, e0);
 	mpfr_mul(term, term, clambda, ROUNDING);
 	mpfr_add(asum, asum, term, ROUNDING);
 
@@ -569,28 +528,31 @@ void deltabar(mpfr_t sum, mpfr_t e)
 	mpfr_clear(term);
 }
 
-void set_params(double s, double a, double l)
+void set_params(double s, double l, int k)
 {
 	static int init = 0;
 
 	if(init == 0)
 	{
-		mpfr_inits(pi, sqrt2, sigma, alpha, lambda, clambda, NULL);
-
-		mpfr_set_d(pi, 1.0, ROUNDING);
-		mpfr_asin(pi, pi, ROUNDING);
-		mpfr_mul_d(pi, pi, 2.0, ROUNDING);
-		mpfr_set_d(sqrt2, 2.0, ROUNDING);
-		mpfr_sqrt(sqrt2, sqrt2, ROUNDING);
-
+		mpfr_inits(lambda, clambda, NULL);
 		type = CORR_EXP;
 		init = 1;
 	}
 
-	mpfr_set_d(sigma, s, ROUNDING);
-	mpfr_set_d(alpha, a, ROUNDING);
+	if(k < 0 || k > 3)
+	{
+		error("Invalid smearing kernel");
+	}
+	else
+	{
+		kernel = k;
+		inorm = (k == 0);
+	}
+
 	mpfr_set_d(lambda, l, ROUNDING);
 	mpfr_set_d(clambda, 1.0-l, ROUNDING);
+
+	init_kernel(s);
 }
 
 void set_tmax(int tmx)

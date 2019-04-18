@@ -8,7 +8,6 @@
 #include "corefcts.h"
 #include "utils.h"
 
-double alpha = 0;
 double sigma = 0.1;
 double lambda = 0.05;
 int nsteps = 100;
@@ -19,6 +18,7 @@ int nms = 1;
 int prec = 128;
 double emin = 0.05;
 double escan = 0.0;
+int kid = -1;
 
 mpfr_t *corr, *cov;
 mpfr_t *expected;
@@ -213,10 +213,17 @@ void get_spectral_density()
 			mag += ag;
 			mbg += bg;
 
-			deltabar(tmp0, estar);
-			delta(tmp1, estar, estar);
+			mpfr_set(ec, estar, ROUNDING);
+			if(kid == 3)
+			{
+				mpfr_add_d(ec, ec, sigma, ROUNDING);
+			}
+
+			deltabar(tmp0, ec);
+			delta(tmp1, estar, ec);
 			mpfr_sub(tmp0, tmp0, tmp1, ROUNDING);
 			mpfr_div(tmp0, tmp0, tmp1, ROUNDING);
+
 			val = mpfr_get_d(tmp0, ROUNDING);
 			val = fabs(val * res[k]);
 			sys += val;
@@ -284,7 +291,7 @@ void scan_lambda()
 
 	for(double l = dl; l < 0.5+dl; l += dl)
 	{
-		set_params(sigma, alpha, l);
+		set_params(sigma, l, kid);
 		rm_method_cosh(e0, estar, cov);
 		transform(e0, estar, corr, cov, &val, &ag, &bg);
 		fprintf(fp, "%1.8e %1.8e %1.8e %1.8e\n", l, ag, bg, ag+bg);
@@ -307,9 +314,9 @@ void prepare_path()
 	fp = fopen_path("params.txt");
 	fprintf(fp, "T      = %d\n", tmx);
 	fprintf(fp, "nms    = %d\n", nms);
+	fprintf(fp, "kernel = %d\n", kid);
 	fprintf(fp, "file   = %s\n", file);
 	fprintf(fp, "prec   = %d\n", prec);
-	fprintf(fp, "alpha  = %lg\n", alpha);
 	fprintf(fp, "lambda = %lg\n", lambda);
 	fprintf(fp, "sigma  = %lg\n", sigma);
 	fprintf(fp, "ei     = %lg\n", ei);
@@ -345,17 +352,17 @@ int main(int argc, char *argv[])
 	memset(file, 0, sizeof(file));
 	find_int(argc, argv, "-T", &tmx);
 	find_int(argc, argv, "-nms", &nms);
+	find_int(argc, argv, "-kernel", &kid);
 	find_str(argc, argv, "-file", file);
 
-	if(tmx <= 0 || nms <= 0 || strlen(file) == 0)
+	if(tmx <= 0 || nms <= 0 || kid == -1 || strlen(file) == 0)
 	{
-		printf("Usage: %s -T <int> -nms <int> -file <string> [ options ]\n", argv[0]);
+		printf("Usage: %s -T <int> -nms <int> -kernel <int> -file <string> [ options ]\n", argv[0]);
 		printf("Options:\n");
 		printf("  -T       <int>     temporal extent of correlator\n");
 		printf("  -nms     <int>     number of measurements\n");
 		printf("  -file    <string>  path for reading the correlator data\n");
-		printf("  -alpha   <float>   algorithmic parameter (default %1.6f)\n", alpha);
-		printf("  -lambda  <float>   algorithmic parameter (default %1.6f)\n", lambda);
+		printf("  -lambda  <float>   trade-off parameter (default %1.6f)\n", lambda);
 		printf("  -sigma   <float>   width for smearing function (default %1.6f)\n", sigma);
 		printf("  -prec    <int>     working precision (default %d decimal places)\n", prec);
 		printf("  -ei      <float>   start of energy range for spectral density (default %1.6f)\n", ei);
@@ -363,10 +370,15 @@ int main(int argc, char *argv[])
 		printf("  -nsteps  <int>     number of steps used in the energy range (default %d)\n", nsteps);
 		printf("  -emin    <float>   lower limit for integration over energy (default %1.6f)\n", emin);
 		printf("  -scan    <float>   perform a scan in lambda at the specified energy (not default)\n");
+		printf("\n");
+		printf("Kernels:\n");
+		printf("  0        Gaussian\n");
+		printf("  1        Sinc\n");
+		printf("  2        i-epsilon (real part)\n");
+		printf("  3        i-epsilon (imaginary part)\n");
 		return 0;
 	}
 
-	find_dbl(argc, argv, "-alpha", &alpha);
 	find_dbl(argc, argv, "-sigma", &sigma);
 	find_dbl(argc, argv, "-lambda", &lambda);
 
@@ -380,7 +392,7 @@ int main(int argc, char *argv[])
 	srand48(1337);
 	mpfr_set_default_prec(3.322*prec);
 
-	set_params(sigma, alpha, lambda);
+	set_params(sigma, lambda, kid);
 	set_tmax(tmx);
 	de = (ef-ei)/nsteps;
 
