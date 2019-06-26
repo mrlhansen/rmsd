@@ -11,6 +11,6 @@ void transform(mpfr_t, mpfr_t, mpfr_t*, mpfr_t*, double*, double*, double*);
 void deltabar(mpfr_t, mpfr_t);
 
 void set_params(double, double, int);
-void set_tmax(int);
+void set_time_parms(int, int, int);
 
 #endif

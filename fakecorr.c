@@ -16,7 +16,7 @@ double ef = 1.0;
 int tmx = 0;
 int nms = 1;
 int prec = 128;
-double emin = 0.05;
+double emin = 0.0;
 double escan = 0.0;
 int sym = 0;
 int L = 32;
@@ -649,9 +649,17 @@ int main(int argc, char *argv[])
 	srand48(1337);
 	mpfr_set_default_prec(3.322*prec);
 
-	set_params(sigma, lambda, kid);
-	set_tmax(tmx);
 	de = (ef-ei)/nsteps;
+	set_params(sigma, lambda, kid);
+
+	if(sym)
+	{
+		set_time_parms(1, tmx/2, tmx);
+	}
+	else
+	{
+		set_time_parms(1, tmx-1, tmx);
+	}
 
 	prepare_path();
 	allocate_data();
