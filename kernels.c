@@ -85,6 +85,31 @@ void delta3(mpfr_t res, mpfr_t estar, mpfr_t omega)
 	mpfr_clears(atmp, btmp, NULL);
 }
 
+void delta4(mpfr_t res, mpfr_t estar, mpfr_t omega)
+{
+	mpfr_t atmp, btmp;
+	mpfr_inits(atmp, btmp, NULL);
+
+	mpfr_sub(res, omega, estar, ROUNDING);
+	mpfr_div(res, res, sigma, ROUNDING);
+	mpfr_sqr(res, res, ROUNDING);
+	mpfr_d_sub(atmp, 1.0, res, ROUNDING);
+
+	if(mpfr_cmp_d(atmp, 0.0) < 0)
+	{
+		mpfr_set_zero(res, 1);
+		return;
+	}
+
+	mpfr_d_div(atmp, 1.0, atmp, ROUNDING);
+	mpfr_neg(btmp, atmp, ROUNDING);
+	mpfr_exp(btmp, btmp, ROUNDING);
+	mpfr_sqrt(atmp, atmp, ROUNDING);
+	mpfr_mul(res, atmp, btmp, ROUNDING);
+
+	mpfr_clears(atmp, btmp, NULL);
+}
+
 void int_delta0_sq(mpfr_t res, mpfr_t estar, mpfr_t e0)
 {
 	mpfr_t norm, arg;
@@ -189,6 +214,45 @@ void int_delta3_sq(mpfr_t res, mpfr_t estar, mpfr_t e0)
 
 	mpfr_sub(res, res, atmp, ROUNDING);
 	mpfr_div_d(res, res, 2.0, ROUNDING);
+
+	mpfr_clears(atmp, btmp, ctmp, NULL);
+}
+
+void int_delta4_sq(mpfr_t res, mpfr_t estar, mpfr_t e0)
+{
+	mpfr_t atmp, btmp, ctmp;
+	int niter;
+
+	if(mpfr_cmp(estar, sigma) < 0)
+	{
+		mpfr_set_zero(res, 1);
+		return;
+	}
+
+	mpfr_inits(atmp, btmp, ctmp, NULL);
+	niter = 3*mpfr_get_default_prec();
+	mpfr_div_d(ctmp, pi, niter, ROUNDING);
+	mpfr_set_zero(res, 1);
+
+	for(int i = 0; i < niter; i++)
+	{
+		mpfr_set_d(atmp, i-0.5, ROUNDING);
+		mpfr_mul(atmp, atmp, ctmp, ROUNDING);
+		mpfr_cos(atmp, atmp, ROUNDING);
+		mpfr_sqr(btmp, atmp, ROUNDING);
+
+		mpfr_d_sub(btmp, 1.0, btmp, ROUNDING);
+		mpfr_d_div(btmp, 1.0, btmp, ROUNDING);
+		mpfr_sqrt(atmp, btmp, ROUNDING);
+		mpfr_mul_d(btmp, btmp, -2.0, ROUNDING);
+		mpfr_exp(btmp, btmp, ROUNDING);
+		mpfr_mul(atmp, atmp, btmp, ROUNDING);
+
+		mpfr_add(res, res, atmp, ROUNDING);
+	}
+
+	mpfr_mul(ctmp, ctmp, sigma, ROUNDING);
+	mpfr_mul(res, res, ctmp, ROUNDING);
 
 	mpfr_clears(atmp, btmp, ctmp, NULL);
 }
@@ -374,6 +438,50 @@ void int_delta3(mpfr_t res, mpfr_t theta, mpfr_t estar, mpfr_t e0)
 	acb_clear(u);
 	acb_clear(v);
 	acb_clear(s);
+}
+
+void int_delta4(mpfr_t res, mpfr_t theta, mpfr_t estar, mpfr_t e0)
+{
+	mpfr_t atmp, btmp, ctmp;
+	int niter;
+
+	if(mpfr_cmp(estar, sigma) < 0)
+	{
+		mpfr_set_zero(res, 1);
+		return;
+	}
+
+	mpfr_inits(atmp, btmp, ctmp, NULL);
+	niter = 3*mpfr_get_default_prec();
+	mpfr_div_d(ctmp, pi, niter, ROUNDING);
+	mpfr_set_zero(res, 1);
+
+	for(int i = 0; i < niter; i++)
+	{
+		mpfr_set_d(atmp, i-0.5, ROUNDING);
+		mpfr_mul(atmp, atmp, ctmp, ROUNDING);
+		mpfr_cos(atmp, atmp, ROUNDING);
+		mpfr_sqr(btmp, atmp, ROUNDING);
+
+		mpfr_d_sub(btmp, 1.0, btmp, ROUNDING);
+		mpfr_d_div(btmp, 1.0, btmp, ROUNDING);
+		mpfr_mul(atmp, atmp, theta, ROUNDING);
+		mpfr_mul(atmp, atmp, sigma, ROUNDING);
+		mpfr_add(atmp, atmp, btmp, ROUNDING);
+		mpfr_neg(atmp, atmp, ROUNDING);
+		mpfr_exp(atmp, atmp, ROUNDING);
+
+		mpfr_add(res, res, atmp, ROUNDING);
+	}
+
+	mpfr_mul(ctmp, ctmp, sigma, ROUNDING);
+	mpfr_mul(atmp, theta, estar, ROUNDING);
+	mpfr_neg(atmp, atmp, ROUNDING);
+	mpfr_exp(atmp, atmp, ROUNDING);
+	mpfr_mul(atmp, atmp, ctmp, ROUNDING);
+	mpfr_mul(res, res, atmp, ROUNDING);
+
+	mpfr_clears(atmp, btmp, ctmp, NULL);
 }
 
 void init_kernel(double s)

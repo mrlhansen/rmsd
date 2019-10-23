@@ -376,6 +376,7 @@ int main(int argc, char *argv[])
 		printf("  1        Sinc\n");
 		printf("  2        i-epsilon (real part)\n");
 		printf("  3        i-epsilon (imaginary part)\n");
+		printf("  4        Bump\n");
 		return 0;
 	}
 

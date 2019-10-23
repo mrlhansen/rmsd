@@ -141,6 +141,9 @@ void delta(mpfr_t res, mpfr_t estar, mpfr_t omega)
 		case 3:
 			delta3(res, estar, omega);
 			break;
+		case 4:
+			delta4(res, estar, omega);
+			break;
 	}
 }
 
@@ -160,6 +163,9 @@ void int_delta_sq(mpfr_t res, mpfr_t estar, mpfr_t e0)
 		case 3:
 			int_delta3_sq(res, estar, e0);
 			break;
+		case 4:
+			int_delta4_sq(res, estar, e0);
+			break;
 	}
 }
 
@@ -178,6 +184,9 @@ void int_delta(mpfr_t res, mpfr_t theta, mpfr_t estar, mpfr_t e0)
 			break;
 		case 3:
 			int_delta3(res, theta, estar, e0);
+			break;
+		case 4:
+			int_delta4(res, theta, estar, e0);
 			break;
 	}
 }
@@ -525,7 +534,7 @@ void set_params(double s, double l, int k)
 		init = 1;
 	}
 
-	if(k < 0 || k > 3)
+	if(k < 0 || k > 4)
 	{
 		error("Invalid smearing kernel");
 	}

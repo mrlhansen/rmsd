@@ -19,33 +19,41 @@
 
 {\large\bf Kernel 0}\\
 \rule{0.75\textwidth}{1pt}
-\begin{align}
-\begin{split}
- \Delta_\sigma(E_\star,E) &= \frac{1}{\sqrt{2\pi}\sigma Z}\exp\left(\frac{-(E-E_\star)^2}{2\sigma^2}\right) \\[5mm]
+\begin{align*}
+ \Delta_\sigma(E_\star,E) &= \frac{1}{\sqrt{2\pi}\sigma Z}\exp\left(\frac{-(E_\star-E)^2}{2\sigma^2}\right) \\[5mm]
  Z &= \frac{1}{2}\left(1+\mathrm{erf}\left(\frac{E_\star}{\sqrt{2}\sigma}\right)\right)
-\end{split} 
-\end{align}
+\end{align*}
 
 \vskip  15mm
 {\large\bf Kernel 1}\\
 \rule{0.75\textwidth}{1pt}
-\begin{equation}
+\begin{equation*}
  \Delta_\sigma(E_\star,E) = \frac{1}{\pi(E_\star-E)}\sin\left(\frac{\pi(E_\star-E)}{\sigma}\right)
-\end{equation}
+\end{equation*}
 
 \vskip  15mm
 {\large\bf Kernel 2}\\
 \rule{0.75\textwidth}{1pt}
-\begin{equation}
+\begin{equation*}
  \Delta_\sigma(E_\star,E) = \frac{\sigma}{(E_\star-E)^2+\sigma^2}~.
-\end{equation}
+\end{equation*}
 
 \vskip  15mm
 {\large\bf Kernel 3}\\
 \rule{0.75\textwidth}{1pt}
-\begin{equation}
+\begin{equation*}
  \Delta_\sigma(E_\star,E) = \frac{E_\star-E}{(E_\star-E)^2+\sigma^2}~.
-\end{equation}
+\end{equation*}
+
+\vskip  15mm
+{\large\bf Kernel 4}\\
+\rule{0.75\textwidth}{1pt}
+\begin{align*}
+ \Delta_\sigma(E_\star,E) &= \frac{1}{\sqrt{1-x^2}}\exp\left(-\frac{1}{1-x^2}\right)\theta\left(1-x^2\right) \\[5mm]
+ x &= \frac{E_\star-E}{\sigma}
+\end{align*}
+
+
 
 \pagestyle{empty}
 
