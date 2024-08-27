@@ -1,10 +1,10 @@
 #include <mpfr.h>
 #include "corefcts.h"
 
-#include <arb.h>
-#include <acb.h>
-#include <acb_hypgeom.h>
-#include <arb_hypgeom.h>
+#include <flint/arb.h>
+#include <flint/acb.h>
+#include <flint/acb_hypgeom.h>
+#include <flint/arb_hypgeom.h>
 
 static mpfr_t pi;
 static mpfr_t sqrt2;

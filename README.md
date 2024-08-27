@@ -7,8 +7,9 @@ To properly understand what the code does, it is advised to carefully read this 
 
 ## Usage
 Compiling the code requires a working version of GCC and two multi-precision libraries. These libraries are needed because the algorithm solves a linear system with an extremely ill-conditioned matrix.
+
 * [MPFR](https://www.mpfr.org)
-* [Arb](http://arblib.org)
+* [FLINT](https://flintlib.org/)
 
 When compiling the code, two main programs are produced.
 
